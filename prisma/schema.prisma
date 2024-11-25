@@ -16,7 +16,7 @@ datasource db {
 model Users {
   user_id             Int         @id @default(autoincrement()) @map("user_id")
   username            String      @map("username")
-  nickname            String      @unique @map("username")
+  nickname            String      @unique @map("nickname")
   password            String      @map("password")
   createdAt           DateTime    @default(now()) @map("createdAt")
   updatedAt           DateTime    @updatedAt @map("updatedAt")
@@ -101,18 +101,12 @@ model InventoryItems {
   // Inventory-InventoryItems 1:N 관계
   inventory   Inventory   @relation(fields: [inventory_id], references: [inventory_id], onDelete: Cascade)
 
-  // Characters-Inventory 1:1 관계
-  character    Characters   @relation(fields: [character_id], references: [character_id], onDelete: Cascade)
-
-
-
   @@map("InventoryItems")  
 }
 
 
 // enum 열거형 캐릭터 직업, 희귀도
-enum CharacterType
-{
+enum CharacterType {
   Warrior
   Rougue
   Druid
@@ -120,8 +114,7 @@ enum CharacterType
   Hunter
 }
 
-enum Rarity
-{
+enum Rarity {
   Common
   Rare
   Epic

@@ -59,15 +59,15 @@ Character-Item
 
 ## 4. API 구현
 
-signup api
-login api
-character create api
-character deletion api
-character detail view api
-item creation api
-item edit api
-item list view api
-item detail view api
+- signup api
+- login api
+- character create api
+- character deletion api
+- character detail view api
+- item creation api
+- item edit api
+- item list view api
+- item detail view api
 
 ---
 

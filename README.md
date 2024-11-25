@@ -3,6 +3,12 @@
 
 #### Node.js와 Express.js를 활용한 나만의 게임 아이템 시뮬레이터 서비스
 
+사용 개발환경
+package manager: npm
+DB: MySQL w. AWS RDS
+ORM: Prisma
+
+
 ---
 
 ## 1. AWS EC2 배포
@@ -17,12 +23,25 @@
 
 ## 3. Datebase modeling
 
+Item
+User
+Character
+Character-Inventory
+Character-Item
+
 
 ---
 
 ## 4. API 구현
-
-
+signup api
+login api
+character create api
+character deletion api
+character detail view api
+item creation api
+item edit api
+item list view api
+item detail view api
 ---
 
 

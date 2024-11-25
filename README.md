@@ -53,7 +53,8 @@ Character
 Character-Inventory
 Character-Item
 
-![](https://velog.velcdn.com/images/nuketuna/post/b5819d08-b5c3-4056-979a-e9ae4ba874d2/image.png)
+![](https://velog.velcdn.com/images/nuketuna/post/a36c1172-af1f-431e-bce1-261a36882b1a/image.png)
+
 ---
 
 ## 4. API 구현

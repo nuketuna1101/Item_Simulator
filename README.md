@@ -9,6 +9,25 @@ DB: MySQL w. AWS RDS
 ORM: Prisma
 
 
+
+
+```cmd
+
+npm init -y
+
+npm add express prisma @prisma/client cookie-parser jsonwebtoken
+
+npm add -D nodemon
+
+npx prisma init
+
+
+
+# 프로젝트에 schema.prisma에 정의된 테이블을 MySQL에 생성
+npx prisma db push
+```
+
+
 ---
 
 ## 1. AWS EC2 배포
@@ -33,6 +52,7 @@ Character-Item
 ---
 
 ## 4. API 구현
+
 signup api
 login api
 character create api
@@ -42,6 +62,7 @@ item creation api
 item edit api
 item list view api
 item detail view api
+
 ---
 
 

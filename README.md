@@ -25,6 +25,11 @@ npx prisma init
 
 # 프로젝트에 schema.prisma에 정의된 테이블을 MySQL에 생성
 npx prisma db push
+
+
+# bcrypt를 설치
+npm add bcrypt
+
 ```
 
 

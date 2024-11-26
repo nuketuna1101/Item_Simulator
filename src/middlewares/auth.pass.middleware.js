@@ -1,10 +1,9 @@
 //====================================================================================================================
 //====================================================================================================================
-// src/middlewares/auth.middleware.js
-// 인증 미들웨어
+// src/middlewares/auth.pass.middleware.js
+// 인증 미들웨어 :: 단, 인증 실패시 그 다음으로 넘긴다.
 //====================================================================================================================
 //====================================================================================================================
-
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma/index.js';
 import dotenv from 'dotenv';
@@ -15,9 +14,9 @@ dotenv.config();
 export default async function (req, res, next) {
     try {
         const { accessToken } = req.cookies;
-        // accessToken 존재 확인
+        // accessToken 존재 확인, 없으면 바로 next
         if (!accessToken)
-            return res.status(400).json({ errorMessage: '[Error] cannot find accessToken' });
+            return next();
         // accessToken 타입 확인
         const [tokenType, token] = accessToken.split(' ');
         if (tokenType !== 'Bearer')
@@ -37,19 +36,6 @@ export default async function (req, res, next) {
         req.user = user;
         next();
     } catch (error) {
-        res.clearCookie('accessToken');
         next();
-
-        // 토큰이 만료되었거나, 조작되었을 때, 에러 메시지를 다르게 출력합니다.
-        // switch (error.name) {
-        //     case 'TokenExpiredError':
-        //         return res.status(401).json({ message: '[Error] token expired' });
-        //     case 'JsonWebTokenError':
-        //         return res.status(401).json({ message: '[Error] token manipulated' });
-        //     default:
-        //         return res
-        //             .status(401)
-        //             .json({ message: error.message ?? '[Error] Unauthorized request' });
-        // }
     }
 }

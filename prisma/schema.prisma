@@ -109,7 +109,7 @@ model InventoryItems {
 // enum 열거형 캐릭터 직업, 희귀도
 enum CharacterType {
   Warrior
-  Rougue
+  Rogue
   Druid
   Warlock
   Hunter

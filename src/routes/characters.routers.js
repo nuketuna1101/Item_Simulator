@@ -1,12 +1,13 @@
 //====================================================================================================================
 //====================================================================================================================
-// src/routes/users.router.js
-// 유저 api 라우터
+// src/routes/characters.router.js
+// 캐릭터 api 라우터
 //====================================================================================================================
 //====================================================================================================================
 
 import express from 'express';
 import authMiddleware from '../middlewares/auth.middleware.js';
+import authPassMiddleware from '../middlewares/auth.pass.middleware.js';
 import { prisma } from '../utils/prisma/index.js';
 import characterStatsInitialValues from '../config/character.initialStats.config.js';
 
@@ -128,10 +129,22 @@ router.delete('/characters/:character_id', authMiddleware, async (req, res, next
 // 로그인하지 않았거나 다른 유저가 내 캐릭터 조회 시, character_name과 character_type 만 조회
 //====================================================================================================================
 //====================================================================================================================
-router.get('/characters/:character_id', authMiddleware, async (req, res, next) => {
+router.get('/characters/:character_id', authPassMiddleware, async (req, res, next) => {
     try {
         const { character_id } = req.params;
+        // const { user_id } = req.user;
+        const user_id = (req.user ? req.user.user_id : null);
+
         const character = await prisma.characters.findFirst({
+            where: {
+                character_id: +character_id,
+            },
+        });
+        if (!character)
+            return res.status(404).json({ message: '[Not Found] character not found' });
+        // 자신의 계정 캐릭터인지 확인
+        const isCharacterMine = user_id === character.user_id;
+        const resultData = await prisma.characters.findFirst({
             where: {
                 character_id: +character_id,
             },
@@ -148,15 +161,12 @@ router.get('/characters/:character_id', authMiddleware, async (req, res, next) =
                     }
                 },          
                 // 자신의 캐릭터일 경우만 재화 까지 표시
-                inventory: user_id === character.user_id ? {
+                inventory: isCharacterMine ? {
                     select: { gold: true },
                 } : false,
             },
         });
-        if (!character)
-            return res.status(404).json({ message: '[Not Found] character not found' });
-
-        return res.status(200).json({ data: character });
+        return res.status(200).json({ data: resultData });
     } catch (error) {
         next(error);
     }

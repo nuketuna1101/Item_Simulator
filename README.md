@@ -20,6 +20,9 @@ npm add express prisma @prisma/client cookie-parser jsonwebtoken
 npm add bcrypt
 npm add winston
 npm install winston-daily-rotate-file
+npm add express-session
+npm add add express-mysql-session
+npm add -D dotenv
 
 # nodemon 라이브러리 DevDependency로 설치
 npm add -D nodemon

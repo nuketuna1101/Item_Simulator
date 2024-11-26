@@ -53,7 +53,7 @@ Character
 Character-Inventory
 Character-Item
 
-![](https://velog.velcdn.com/images/nuketuna/post/a36c1172-af1f-431e-bce1-261a36882b1a/image.png)
+![](https://velog.velcdn.com/images/nuketuna/post/7e56984d-57dd-418d-a205-a643f66e04e7/image.png)
 
 ---
 

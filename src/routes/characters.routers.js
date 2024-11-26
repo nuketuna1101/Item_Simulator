@@ -8,6 +8,7 @@
 import express from 'express';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import { prisma } from '../utils/prisma/index.js';
+import characterStatsInitialValues from '../config/character.initialStats.config.js';
 
 const router = express.Router();
 
@@ -34,6 +35,11 @@ router.post('/characters/create', authMiddleware, async (req, res, next) => {
         if (isCharNameExist)
             return res.status(409).json({ message: '[Conflict] character_name already exists' });
 
+        // type별 캐릭터 스탯 초기화값 가져오기
+        const initStats = characterStatsInitialValues[character_type];
+        if (!initStats)
+            return res.status(400).json({ message: '[Error] failed to initialize characterStat' });
+
         // consistency를 위한 트랜잭션 사용
         const newCharacter = await prisma.$transaction(async (trx) => {
 
@@ -50,15 +56,11 @@ router.post('/characters/create', authMiddleware, async (req, res, next) => {
             await trx.characterStats.create({
                 data: {
                     character_id: tmpCharacter.character_id,
-                    hp: 500,
-                    mp: 200,
-                    level: 1,
-                    attack: 10,
-                    defense: 5,
+                    ...initStats,
                 },
             });
 
-            // 대응하는 invnetory 생성과 초기화
+            // 대응하는 invnetory 생성과 초기화 .. gold는 default로 설정
             await trx.inventory.create({
                 data: {
                     character_id: tmpCharacter.character_id,
@@ -144,11 +146,11 @@ router.get('/characters/:character_id', authMiddleware, async (req, res, next) =
                         attack: true,
                         defense: true,
                     }
-                },
+                },          
                 // 자신의 캐릭터일 경우만 재화 까지 표시
-                // ...user_id === character.user_id && {
-
-                // },
+                inventory: user_id === character.user_id ? {
+                    select: { gold: true },
+                } : false,
             },
         });
         if (!character)

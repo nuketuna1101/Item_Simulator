@@ -69,6 +69,7 @@ model CharacterStats {
 model Inventory {
   inventory_id          Int         @id @default(autoincrement()) @map("inventory_id")
   character_id          Int         @unique @map("character_id")
+  gold                  Int         @default(10000) @map("gold")
   // Inventory-InventoryItems 1:N 관계
   inventoryItems   InventoryItems[]
 

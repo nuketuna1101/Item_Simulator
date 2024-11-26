@@ -12,23 +12,23 @@ ORM: Prisma
 
 
 ```cmd
-
+# npm 초기화
 npm init -y
 
+# 사용할 라이브러리들
 npm add express prisma @prisma/client cookie-parser jsonwebtoken
+npm add bcrypt
+npm add winston
+npm install winston-daily-rotate-file
 
+# nodemon 라이브러리 DevDependency로 설치
 npm add -D nodemon
 
+# prisma 초기화
 npx prisma init
-
-
 
 # 프로젝트에 schema.prisma에 정의된 테이블을 MySQL에 생성
 npx prisma db push
-
-
-# bcrypt를 설치
-npm add bcrypt
 
 ```
 

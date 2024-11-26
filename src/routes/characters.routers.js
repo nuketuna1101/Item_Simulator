@@ -6,8 +6,6 @@
 //====================================================================================================================
 
 import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import { prisma } from '../utils/prisma/index.js';
 
@@ -19,6 +17,7 @@ const router = express.Router();
 // character/create API : 캐릭터 생성
 // validation: character_name : 중복 불가
 // 캐릭터 생성 성공시, 캐릭터 ID를 response로 돌려받기
+// 캐릭터 성공시, 캐릭터 뿐만 아니라, 1대1 대응되는 characterStats, inventory 또한 생성 초기화가 되어야 한다 AS TRASACTION
 //====================================================================================================================
 //====================================================================================================================
 router.post('/characters/create', authMiddleware, async (req, res, next) => {
@@ -35,15 +34,41 @@ router.post('/characters/create', authMiddleware, async (req, res, next) => {
         if (isCharNameExist)
             return res.status(409).json({ message: '[Conflict] character_name already exists' });
 
+        // consistency를 위한 트랜잭션 사용
+        const newCharacter = await prisma.$transaction(async (trx) => {
 
-        const newCharacter = await prisma.posts.create({
-            data: {
-                user_id: +user_id,
-                character_name,
-                character_type,
-            },
+            // 캐릭터 생성
+            const tmpCharacter = await trx.characters.create({
+                data: {
+                    user_id: +user_id,
+                    character_name,
+                    character_type,
+                },
+            });
+
+            // 대응하는 characterStats 생성과 초기화
+            await trx.characterStats.create({
+                data: {
+                    character_id: tmpCharacter.character_id,
+                    hp: 500,
+                    mp: 200,
+                    level: 1,
+                    attack: 10,
+                    defense: 5,
+                },
+            });
+
+            // 대응하는 invnetory 생성과 초기화
+            await trx.inventory.create({
+                data: {
+                    character_id: tmpCharacter.character_id,
+                },
+            });
+
+            return tmpCharacter;
         });
 
+        // 성공시 반환
         return res.status(201).json({
             message: '[Created] new character creation completed.',
             character_id: newCharacter.character_id,
@@ -62,6 +87,7 @@ router.post('/characters/create', authMiddleware, async (req, res, next) => {
 // character_id를 request에 담아서 해당 아이디의 캐릭터 삭제
 // validation: 해당 캐릭터는 자신의 계정이어야 함. 즉, user_id를 통해 확인
 // 삭제 성공시, 메시지
+// cascade 옵션때문에 삭제는 캐릭터만 삭제해도 됨.
 //====================================================================================================================
 //====================================================================================================================
 router.delete('/characters/:character_id', authMiddleware, async (req, res, next) => {

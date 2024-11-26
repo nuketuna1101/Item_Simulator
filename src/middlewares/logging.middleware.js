@@ -42,5 +42,14 @@ export default function (req, res, next) {
         );
     });
 
+    // response에서 error 시 기록
+    res.on('error', (error) => {
+        logger.error({
+            message: '[Error] error occurred',
+            error: error.message,
+            stack: error.stack,
+        });
+    });
+
     next();
 }

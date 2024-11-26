@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import LoggingMiddleware from './middlewares/logging.middleware.js';
 import ErrorHandlingMiddleware from './middlewares/errorHandling.middleware.js';
 import usersRouter from './routes/users.routers.js';
+import charactersRouter from './routes/characters.routers.js';
+import itemsRouter from './routes/items.routers.js';
 
 const app = express();
 const PORT = 3019;
@@ -14,7 +16,7 @@ const PORT = 3019;
 app.use(LoggingMiddleware);
 app.use(express.json());
 app.use(cookieParser());
-app.use('/api', usersRouter);
+app.use('/api', [usersRouter, charactersRouter, itemsRouter]);
 app.use(ErrorHandlingMiddleware);
 
 

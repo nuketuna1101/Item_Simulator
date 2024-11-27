@@ -98,7 +98,7 @@ router.post('/log-in', async (req, res, next) => {
                 user_id: user.user_id,
             },
             process.env.ACCESS_TOKEN_SECRET_KEY,
-            { expiresIn: '1m' },
+            { expiresIn: '5m' },
         );
 
         // authotization 쿠키에 Bearer 토큰 으로 JWT를 저장

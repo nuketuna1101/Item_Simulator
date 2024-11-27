@@ -83,11 +83,15 @@ model Inventory {
 
 // 데이터 모델로서의 아이템
 model Items {
-  item_id          Int          @id @default(autoincrement()) @map("item_id")
-  item_name        String       @unique @map("item_name")
-  item_price       Int          @map("item_price") 
-  item_rarity      Rarity       @map("item_rarity") 
-  item_stat        Json         @map("item_stat")
+  item_id         Int          @id @default(autoincrement()) @map("item_id")
+  item_name       String       @unique @map("item_name")
+  item_price      Int          @map("item_price") 
+  item_rarity     Rarity       @map("item_rarity") 
+  item_stat       Json         @map("item_stat")
+
+  canBeMerged     Boolean      @map("canBeMerged")
+  item_type       ItemType     @map("item_type")
+  equip_slot      EquipSlot?   @map("equip_slot")
 
   @@map("Items")
 }
@@ -96,8 +100,12 @@ model InventoryItems {
   inventoryItem_id      Int         @id @default(autoincrement()) @map("inventoryItem_id")
   inventory_id          Int         @map("inventory_id")
   item_id               Int         @map("item_id")
-  isEquipped            Boolean     @map("isEquipped")
+  item_name             String      @map("item_name")
+  isEquipped            Boolean     @default(false) @map("isEquipped")
   item_quantity         Int         @map("item_quantity")
+
+  canBeMerged           Boolean     @map("canBeMerged")
+
 
   // Inventory-InventoryItems 1:N 관계
   inventory   Inventory   @relation(fields: [inventory_id], references: [inventory_id], onDelete: Cascade)
@@ -121,4 +129,18 @@ enum Rarity {
   Epic
   Legendary
   Mythic
+}
+
+enum ItemType {
+  Weapon
+  Armor
+  Expendable
+  Material
+}
+
+enum EquipSlot {
+  Head
+  Body
+  Leg
+  Hand
 }

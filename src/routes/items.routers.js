@@ -20,7 +20,7 @@ const router = express.Router();
 //====================================================================================================================
 router.post('/items/create', async (req, res, next) => {
     try {
-        const { item_name, item_price, item_rarity, item_stat } = req.body;
+        const { item_name, item_price, item_rarity, item_stat, canBeMerged, equip_slot, item_type } = req.body;
 
         // validation: item_name : 중복 불가
         const isItemNameExist = await prisma.items.findFirst({
@@ -42,6 +42,9 @@ router.post('/items/create', async (req, res, next) => {
                 item_price: processedPrice,
                 item_rarity,
                 item_stat,
+                canBeMerged,
+                equip_slot,
+                item_type,
             },
         });
 
@@ -150,6 +153,8 @@ router.get('/items/:item_id', async (req, res, next) => {
                 item_price: true,
                 item_rarity: true,
                 item_stat: true,
+                item_type: true,
+                equip_slot: true,
             },
         });
         // validation: item을 찾았는지
@@ -210,16 +215,49 @@ router.post('/items/purchase/:character_id', authMiddleware, async (req, res, ne
                 where: { inventory_id: myInventory.inventory_id, },
                 data: { gold: goldAfterPurchase }
             });
-            // 구매 로직: 아이템 인벤토리에 추가
-            await trx.inventoryItems.create({
-                data: {
+            // 구매 로직: 아이템 인벤토리에 더해주기
+            // 이미 가지고 있는지 확인
+            const existingInventoryItem = await trx.inventoryItems.findFirst({
+                where: {
                     inventory_id: myInventory.inventory_id,
                     item_id,
-                    item_quantity,
-                    isEquipped: false,
-                },
+                }
             });
-
+            // 이미 존재하고, 병합 가능 시에는 수량 업데이트
+            if (existingInventoryItem && targetItem.canBeMerged) {
+                await trx.inventoryItems.update({
+                    where: { inventoryItem_id: existingInventoryItem.inventoryItem_id },
+                    data: { item_quantity: existingInventoryItem.item_quantity + item_quantity, },
+                });
+            }
+            // 새로 추가해야하지만 병합 가능 시 여러개 한번에
+            else if (targetItem.canBeMerged) {
+                await trx.inventoryItems.create({
+                    data: {
+                        inventory_id: myInventory.inventory_id,
+                        item_id,
+                        item_name: targetItem.item_name,
+                        item_quantity,
+                        isEquipped: false,
+                        canBeMerged: targetItem.canBeMerged,
+                    },
+                });
+            }
+            // 새로 추가해야하지만 병합 불가능 시 하나씩
+            else {
+                for (let i = 0; i < item_quantity; i++) {
+                    await trx.inventoryItems.create({
+                        data: {
+                            inventory_id: myInventory.inventory_id,
+                            item_id,
+                            item_name: targetItem.item_name,
+                            item_quantity: 1,
+                            isEquipped: false,
+                            canBeMerged: targetItem.canBeMerged,
+                        },
+                    });
+                }
+            }
             return updatedInventory;
         });
 
@@ -239,7 +277,7 @@ router.post('/items/purchase/:character_id', authMiddleware, async (req, res, ne
 //====================================================================================================================
 //====================================================================================================================
 // item/sell API : 아이템 판매
-// URI param: 구입할 내 캐릭터 아이디
+// URI param: 내 캐릭터 아이디
 // request: 아이템 id, 아이템 수량
 // response: 판매한 이후의 gold 재화 수량
 // 기타 로직: 판매한 아이템은 인벤토리에서 차감

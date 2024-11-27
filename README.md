@@ -68,6 +68,34 @@ npx prisma db push
 
 ![](https://velog.velcdn.com/images/nuketuna/post/7e56984d-57dd-418d-a205-a643f66e04e7/image.png)
 
+// Legacy Model
+
+// 데이터 모델로서의 아이템
+model Items {
+  item_id          Int          @id @default(autoincrement()) @map("item_id")
+  item_name        String       @unique @map("item_name")
+  item_price       Int          @map("item_price") 
+  item_rarity      Rarity       @map("item_rarity") 
+  item_stat        Json         @map("item_stat")
+
+  @@map("Items")
+}
+
+model InventoryItems {
+  inventoryItem_id      Int         @id @default(autoincrement()) @map("inventoryItem_id")
+  inventory_id          Int         @map("inventory_id")
+  item_id               Int         @map("item_id")
+  isEquipped            Boolean     @map("isEquipped")
+  item_quantity         Int         @map("item_quantity")
+
+  // Inventory-InventoryItems 1:N 관계
+  inventory   Inventory   @relation(fields: [inventory_id], references: [inventory_id], onDelete: Cascade)
+
+  @@map("InventoryItems")  
+}
+
+
+
 ---
 
 ## 4. API 구현

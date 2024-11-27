@@ -101,8 +101,9 @@ model InventoryItems {
   inventory_id          Int         @map("inventory_id")
   item_id               Int         @map("item_id")
   item_name             String      @map("item_name")
-  isEquipped            Boolean     @default(false) @map("isEquipped")
   item_quantity         Int         @map("item_quantity")
+
+  equippedOn            EquipSlot?  @map("equippedOn")
 
   canBeMerged           Boolean     @map("canBeMerged")
 
@@ -141,6 +142,9 @@ enum ItemType {
 enum EquipSlot {
   Head
   Body
+  Arm
   Leg
   Hand
+  Feet
+  Weapon
 }

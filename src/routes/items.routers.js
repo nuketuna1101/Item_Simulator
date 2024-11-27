@@ -238,7 +238,7 @@ router.post('/items/purchase/:character_id', authMiddleware, async (req, res, ne
                         item_id,
                         item_name: targetItem.item_name,
                         item_quantity,
-                        isEquipped: false,
+                        equippedOn: null,
                         canBeMerged: targetItem.canBeMerged,
                     },
                 });
@@ -252,7 +252,7 @@ router.post('/items/purchase/:character_id', authMiddleware, async (req, res, ne
                             item_id,
                             item_name: targetItem.item_name,
                             item_quantity: 1,
-                            isEquipped: false,
+                            equippedOn: null,
                             canBeMerged: targetItem.canBeMerged,
                         },
                     });
@@ -302,7 +302,7 @@ router.post('/items/sell/:character_id', authMiddleware, async (req, res, next) 
             where: {
                 inventory_id: myCharacter.inventory.inventory_id,
                 item_id,
-                isEquipped: false,
+                equippedOn: null,
                 item_quantity: {
                     gte: item_quantity,
                 },

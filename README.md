@@ -2,15 +2,16 @@
 # ITEM SIMULATOR
 
 #### Node.js와 Express.js를 활용한 나만의 게임 아이템 시뮬레이터 서비스
+<br><br>
 
-사용 개발환경
-package manager: npm
-DB: MySQL w. AWS RDS
-ORM: Prisma
+## 사용 개발환경
+- package manager: npm
+- DB: MySQL w. AWS RDS
+- ORM: Prisma
 
+<br>
 
-
-
+## 프로젝트 세팅
 ```cmd
 # npm 초기화
 npm init -y
@@ -42,25 +43,36 @@ npx prisma db push
 
 ---
 
-## 2. Middleware - Auth 기능 구현
+## 2. Middleware
 
+#### Auth 인증 미들웨어
 - Request의 Authorization 헤더에서 JWT를 가져와서 인증 된 사용자인지 확인하는 Middleware를 구현
+
+#### Logging 로깅 미들웨어
+- winston daily rotate file 통한 타임스탬프가 찍힌 로그 파일로 저장
+
+#### Error Handling 미들웨어
+- 정상 처리 실패시 에러 flow 처리 위한 핸들러
+
 
 ---
 
 ## 3. Datebase modeling
 
-Item
-User
-Character
-Character-Inventory
-Character-Item
+- Users
+- Characters
+- CharacterStats
+- Characters-Inventory
+- Characters-InventoryItems
+- Items
 
 ![](https://velog.velcdn.com/images/nuketuna/post/7e56984d-57dd-418d-a205-a643f66e04e7/image.png)
 
 ---
 
 ## 4. API 구현
+
+### 필수기능 API
 
 - signup api
 - login api
@@ -71,6 +83,17 @@ Character-Item
 - item edit api
 - item list view api
 - item detail view api
+
+<br>
+
+### 추가기능 API
+
+- items/purchase
+- items/sell
+- inventory/list view
+- inventory/equipped
+- character/equipped
+- character/gainGold
 
 ---
 

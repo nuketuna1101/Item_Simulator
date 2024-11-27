@@ -10,6 +10,7 @@ import authMiddleware from '../middlewares/auth.middleware.js';
 import authPassMiddleware from '../middlewares/auth.pass.middleware.js';
 import { prisma } from '../utils/prisma/index.js';
 import characterStatsInitialValues from '../config/character.initialStats.config.js';
+import GOLD_INCREMENT from '../config/character.increment.config.js';
 
 const router = express.Router();
 
@@ -132,7 +133,7 @@ router.delete('/characters/:character_id', authMiddleware, async (req, res, next
 router.get('/characters/:character_id', authPassMiddleware, async (req, res, next) => {
     try {
         const { character_id } = req.params;
-        // const { user_id } = req.user;
+        // 로그인 안하거나 다른 유저일수도 있으므로 확인할 user_id
         const user_id = (req.user ? req.user.user_id : null);
 
         const character = await prisma.characters.findFirst({
@@ -159,7 +160,7 @@ router.get('/characters/:character_id', authPassMiddleware, async (req, res, nex
                         attack: true,
                         defense: true,
                     }
-                },          
+                },
                 // 자신의 캐릭터일 경우만 재화 까지 표시
                 inventory: isCharacterMine ? {
                     select: { gold: true },
@@ -171,6 +172,53 @@ router.get('/characters/:character_id', authPassMiddleware, async (req, res, nex
         next(error);
     }
 });
+
+
+//====================================================================================================================
+//====================================================================================================================
+// character increment gold API : 캐릭터 골드 재화 획득 api
+// character_id를 param으로 해당 캐릭터에게 전달
+// 우선은 daily income으로 config에 상수값 저장한만큼 지급
+//====================================================================================================================
+//====================================================================================================================
+router.post('/characters/increment/gold/:character_id', authMiddleware, async (req, res, next) => {
+    try {
+        const { character_id } = req.params;
+        const { user_id } = req.user;
+        const character = await prisma.characters.findFirst({
+            where: {
+                character_id: +character_id,
+            },
+        });
+        // 캐릭터 일치하는지
+        if (!character)
+            return res.status(404).json({ message: '[Not Found] character not found' });
+        // validation: 해당 캐릭터는 자신의 계정이어야 함. 즉, user_id를 통해 확인
+        if (user_id !== character.user_id)
+            return res.status(401).json({ message: '[Unauthorized] not your character' });
+
+        const inventory = await prisma.inventory.findFirst({
+            where: { character_id: +character_id, },
+        });
+        // 인벤토리 존재 확인
+        if (!inventory)
+            return res.status(404).json({ message: '[Not Found] inventory not found' });
+
+        // inventory
+        const updated = await prisma.inventory.update({
+            where: { character_id: +character_id, },
+            data: {
+                gold: inventory.gold + GOLD_INCREMENT,
+            },
+            select: { gold: true, },
+        });
+
+        return res.status(200).json({ message: '[Income] gold incremented.', data: updated });
+    } catch (error) {
+        next(error);
+    }
+});
+
 
 export default router;
 

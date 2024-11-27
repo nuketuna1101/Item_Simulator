@@ -38,18 +38,16 @@ export default async function (req, res, next) {
         next();
     } catch (error) {
         res.clearCookie('accessToken');
-        next();
-
-        // 토큰이 만료되었거나, 조작되었을 때, 에러 메시지를 다르게 출력합니다.
-        // switch (error.name) {
-        //     case 'TokenExpiredError':
-        //         return res.status(401).json({ message: '[Error] token expired' });
-        //     case 'JsonWebTokenError':
-        //         return res.status(401).json({ message: '[Error] token manipulated' });
-        //     default:
-        //         return res
-        //             .status(401)
-        //             .json({ message: error.message ?? '[Error] Unauthorized request' });
-        // }
+        //토큰이 만료되었거나, 조작되었을 때, 에러 메시지를 다르게 출력합니다.
+        switch (error.name) {
+            case 'TokenExpiredError':
+                return res.status(401).json({ message: '[Error] token expired' });
+            case 'JsonWebTokenError':
+                return res.status(401).json({ message: '[Error] token manipulated' });
+            default:
+                return res
+                    .status(401)
+                    .json({ message: error.message ?? '[Error] Unauthorized request' });
+        }
     }
 }

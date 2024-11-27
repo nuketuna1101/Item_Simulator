@@ -252,50 +252,55 @@ router.post('/items/sell/:character_id', authMiddleware, async (req, res, next) 
         const { character_id } = req.params;
         const { item_id, item_quantity } = req.body;
         // validation: 해당 캐릭터는 자신의 계정이어야 함. 즉, user_id를 통해 확인
-        const character = await prisma.characters.findFirst({
+        const myCharacter = await prisma.characters.findFirst({
             where: { character_id: +character_id, },
+            include: { inventory: true, },
         });
-        if (user_id !== character.user_id)
+        if (user_id !== myCharacter.user_id)
             return res.status(401).json({ message: '[Unauthorized] not your character' });
 
-
-
-
-
-
-
-        const targetItem = await prisma.inventoryItems.findFirst({
-            where: { item_id, },
-        });
-        // validation: item_id로 item 찾았는지
-        if (!targetItem)
-            return res.status(404).json({ message: '[Not Found] cannot find item' });
-
-        const myInventory = await prisma.inventory.findFirst({
-            where: { character_id: +character_id, },
-        });
-        // 현재 가진 골드가 구매할 액수만큼 있는가?
-        const goldAfterPurchase = myInventory.gold - targetItem.item_price * item_quantity;
-        const isPurchasable = goldAfterPurchase >= 0;
-        // 적으면 사지 못한다.
-        if (!isPurchasable)
-            return res.status(402).json({ message: '[Not Enough gold] need more golds.' });
-
-        // TRANSACTION: 거래 로직은 트랜잭션 처리
-        const trxInventory = await prisma.$transaction(async (trx) => {
-            // 구매 로직: 골드는 차감
-            const updatedInventory = await trx.inventory.update({
-                where: { inventory_id: myInventory.inventory_id, },
-                data: { gold: goldAfterPurchase }
-            });
-            // 구매 로직: 아이템 인벤토리에 추가
-            await trx.inventoryItems.create({
-                data: {
-                    inventory_id: myInventory.inventory_id,
-                    item_id,
-                    item_quantity,
-                    isEquipped: false,
+        // 판매하려는 아이템 검색: 장착 해제되어야 하며, 수량도 충분해야함
+        const targetItems = await prisma.inventoryItems.findFirst({
+            where: {
+                inventory_id: myCharacter.inventory.inventory_id,
+                item_id,
+                isEquipped: false,
+                item_quantity: {
+                    gte: item_quantity,
                 },
+            },
+        });
+        // validation: 아이템이 인벤토리에 존재하는지
+        if (!targetItems)
+            return res.status(404).json({ message: '[Not Found] cannot find item' });
+        // 미리 차감 계산
+        const updatedQuantity = targetItems.item_quantity - item_quantity;
+        // 미리 금액 계산
+        const calculatedPrice = (await prisma.items.findUnique({ where: { item_id }, })).item_price * item_quantity;
+        // TRANSACTION: 판매 로직은 트랜잭션 처리
+        const trxInventory = await prisma.$transaction(async (trx) => {
+            // 판매 로직: 판매된 아이템 만큼 차감
+            // 차감해도 남을 경우, 업데이트
+            if (updatedQuantity > 0) {
+                await trx.inventoryItems.update({
+                    where: { inventoryItem_id: targetItems.inventoryItem_id, },
+                    data: { item_quantity: updatedQuantity, },
+                });
+            }
+            // 차감 시 다 사용이면 삭제
+            else if (updatedQuantity == 0) {
+                await trx.inventoryItems.delete({
+                    where: { inventoryItem_id: targetItems.inventoryItem_id, },
+                });
+            }
+            // 음수일 경우는 error임
+            else
+                throw new Error('Invalid quantity');
+
+            // 판매 로직: 그만큼의 재화 증가
+            const updatedInventory = await trx.inventory.update({
+                where: { inventory_id: myCharacter.inventory.inventory_id, },
+                data: { gold: myCharacter.inventory.gold + calculatedPrice }
             });
 
             return updatedInventory;

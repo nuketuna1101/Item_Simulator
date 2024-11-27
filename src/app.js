@@ -17,6 +17,13 @@ app.use(LoggingMiddleware);
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api', [usersRouter, charactersRouter, itemsRouter]);
+
+// 추후엔 이 방식도 아니라 라우팅 미들웨어를 통해서 라우팅해주자
+// app.use('/api/users', usersRouter);
+// app.use('/api/characters', charactersRouter);
+// app.use('/api/items', itemsRouter);
+
+
 app.use(ErrorHandlingMiddleware);
 
 

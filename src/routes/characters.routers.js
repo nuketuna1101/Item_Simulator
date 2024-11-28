@@ -10,7 +10,7 @@ import authMiddleware from '../middlewares/auth.middleware.js';
 import authPassMiddleware from '../middlewares/auth.pass.middleware.js';
 import { prisma } from '../utils/prisma/index.js';
 import characterStatsInitialValues from '../config/character.initialStats.config.js';
-import GOLD_INCREMENT from '../config/character.increment.config.js';
+import { GOLD_INCREMENT } from '../config/gold.policy.config.js';
 
 const router = express.Router();
 

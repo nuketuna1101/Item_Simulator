@@ -8,6 +8,7 @@
 import express from 'express';
 import { prisma } from '../utils/prisma/index.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
+import { ITEM_SALES_POLICY } from '../config/gold.policy.config.js';
 
 const router = express.Router();
 
@@ -314,7 +315,7 @@ router.post('/items/sell/:characterCode', authMiddleware, async (req, res, next)
         // 미리 차감 계산
         const updatedQuantity = targetItems.itemQuantity - itemQuantity;
         // 미리 금액 계산
-        const calculatedPrice = (await prisma.items.findUnique({ where: { itemCode }, })).itemPrice * itemQuantity;
+        const calculatedPrice = (await prisma.items.findUnique({ where: { itemCode }, })).itemPrice * ITEM_SALES_POLICY * itemQuantity;
         // TRANSACTION: 판매 로직은 트랜잭션 처리
         const trxInventory = await prisma.$transaction(async (trx) => {
             // 판매 로직: 판매된 아이템 만큼 차감

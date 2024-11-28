@@ -23,10 +23,10 @@ export default async function (req, res, next) {
             throw new Error('[Error] token type mismatched');
         // 
         const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
-        const user_id = payload.user_id;
+        const userCode = payload.userCode;
         // 유저 찾기
         const user = await prisma.users.findFirst({
-            where: { user_id: +user_id },
+            where: { userCode: +userCode },
         });
         if (!user) {
             res.clearCookie('accessToken');

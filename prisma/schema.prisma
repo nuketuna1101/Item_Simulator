@@ -14,9 +14,9 @@ datasource db {
 }
 
 model Users {
-  user_id             Int         @id @default(autoincrement()) @map("user_id")
+  userCode             Int         @id @default(autoincrement()) @map("userCode")
   username            String      @map("username")
-  nickname            String      @unique @map("nickname")
+  userId            String      @unique @map("userId")
   password            String      @map("password")
   createdAt           DateTime    @default(now()) @map("createdAt")
   updatedAt           DateTime    @updatedAt @map("updatedAt")
@@ -29,16 +29,16 @@ model Users {
 }
 
 model Characters {
-  character_id          Int             @id @default(autoincrement()) @map("character_id")
-  user_id               Int             @map("user_id")
-  character_name        String          @unique @map("character_name")
-  character_type        CharacterType   @map("character_type")
+  characterCode          Int             @id @default(autoincrement()) @map("characterCode")
+  userCode               Int             @map("userCode")
+  characterName        String          @unique @map("characterName")
+  characterType        CharacterType   @map("characterType")
   createdAt             DateTime        @default(now()) @map("createdAt")
   updatedAt             DateTime        @updatedAt @map("updatedAt")
 
 
   // Users-Characters 1:N 관계
-  user    Users   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  user    Users   @relation(fields: [userCode], references: [userCode], onDelete: Cascade)
 
   // Characters-CharacterStats 1:1 관계
   characterStats    CharacterStats?
@@ -50,8 +50,8 @@ model Characters {
 }
 
 model CharacterStats {
-  stat_id               Int         @id @default(autoincrement()) @map("stat_id")
-  character_id          Int         @unique @map("character_id")
+  statCode               Int         @id @default(autoincrement()) @map("statCode")
+  characterCode          Int         @unique @map("characterCode")
   hp                    Int         @map("hp")
   mp                    Int         @map("mp")
   level                 Int         @map("level")
@@ -59,7 +59,7 @@ model CharacterStats {
   defense               Int         @map("defense")
 
   // Characters-CharacterStats 1:1 관계
-  character    Characters   @relation(fields: [character_id], references: [character_id], onDelete: Cascade)
+  character    Characters   @relation(fields: [characterCode], references: [characterCode], onDelete: Cascade)
 
   @@map("CharacterStats")
 }
@@ -67,14 +67,14 @@ model CharacterStats {
 
 // Inventory: 유저-캐릭터에 1대1 할당된 인벤토리.
 model Inventory {
-  inventory_id          Int         @id @default(autoincrement()) @map("inventory_id")
-  character_id          Int         @unique @map("character_id")
+  inventoryCode          Int         @id @default(autoincrement()) @map("inventoryCode")
+  characterCode          Int         @unique @map("characterCode")
   gold                  Int         @default(10000) @map("gold")
   // Inventory-InventoryItems 1:N 관계
   inventoryItems   InventoryItems[]
 
   // Characters-Inventory 1:1 관계
-  character    Characters   @relation(fields: [character_id], references: [character_id], onDelete: Cascade)
+  character    Characters   @relation(fields: [characterCode], references: [characterCode], onDelete: Cascade)
 
 
 
@@ -83,25 +83,25 @@ model Inventory {
 
 // 데이터 모델로서의 아이템
 model Items {
-  item_id         Int          @id @default(autoincrement()) @map("item_id")
-  item_name       String       @unique @map("item_name")
-  item_price      Int          @map("item_price") 
-  item_rarity     Rarity       @map("item_rarity") 
-  item_stat       Json         @map("item_stat")
+  itemCode         Int          @id @default(autoincrement()) @map("itemCode")
+  itemName       String       @unique @map("itemName")
+  itemPrice      Int          @map("itemPrice") 
+  itemRarity     Rarity       @map("itemRarity") 
+  itemStat       Json         @map("itemStat")
 
   canBeMerged     Boolean      @map("canBeMerged")
-  item_type       ItemType     @map("item_type")
-  equip_slot      EquipSlot?   @map("equip_slot")
+  itemType       ItemType     @map("itemType")
+  equipSlot      EquipSlot?   @map("equipSlot")
 
   @@map("Items")
 }
 
 model InventoryItems {
-  inventoryItem_id      Int         @id @default(autoincrement()) @map("inventoryItem_id")
-  inventory_id          Int         @map("inventory_id")
-  item_id               Int         @map("item_id")
-  item_name             String      @map("item_name")
-  item_quantity         Int         @map("item_quantity")
+  inventoryitemCode      Int         @id @default(autoincrement()) @map("inventoryitemCode")
+  inventoryCode          Int         @map("inventoryCode")
+  itemCode               Int         @map("itemCode")
+  itemName             String      @map("itemName")
+  itemQuantity         Int         @map("itemQuantity")
 
   equippedOn            EquipSlot?  @map("equippedOn")
 
@@ -109,7 +109,7 @@ model InventoryItems {
 
 
   // Inventory-InventoryItems 1:N 관계
-  inventory   Inventory   @relation(fields: [inventory_id], references: [inventory_id], onDelete: Cascade)
+  inventory   Inventory   @relation(fields: [inventoryCode], references: [inventoryCode], onDelete: Cascade)
 
   @@map("InventoryItems")  
 }

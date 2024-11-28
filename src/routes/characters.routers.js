@@ -107,7 +107,7 @@ router.delete('/characters/:characterCode', authMiddleware, async (req, res, nex
             return res.status(404).json({ message: '[Not Found] character not found' });
         // validation: 해당 캐릭터는 자신의 계정이어야 함. 즉, userCode를 통해 확인
         if (userCode !== character.userCode)
-            return res.status(401).json({ message: '[Unauthorized] not your character' });
+            return res.status(403).json({ message: '[Forbidden] not your character' });
 
         // 캐릭터 삭제
         await prisma.characters.delete({
@@ -195,7 +195,7 @@ router.post('/characters/increment/gold/:characterCode', authMiddleware, async (
             return res.status(404).json({ message: '[Not Found] character not found' });
         // validation: 해당 캐릭터는 자신의 계정이어야 함. 즉, userCode를 통해 확인
         if (userCode !== character.userCode)
-            return res.status(401).json({ message: '[Unauthorized] not your character' });
+            return res.status(403).json({ message: '[Forbidden] not your character' });
 
         const inventory = await prisma.inventory.findFirst({
             where: { characterCode: +characterCode, },

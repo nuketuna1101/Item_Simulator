@@ -87,7 +87,7 @@ router.post('/log-in', async (req, res, next) => {
         if (!user)
             return res.status(404).json({ message: '[Not Found] cannot find userId' });
 
-        /* TODO: password 일치하는지 */
+        /* password 일치하는지 */
         const isPWValid = await bcrypt.compare(password, user.password);
         if (!isPWValid)
             return res.status(401).json({ message: '[Unauthorized] password mismatched' });

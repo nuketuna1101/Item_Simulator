@@ -66,7 +66,7 @@ npx prisma db push
 - Characters-InventoryItems
 - Items
 
-![](https://velog.velcdn.com/images/nuketuna/post/7e56984d-57dd-418d-a205-a643f66e04e7/image.png)
+![](https://velog.velcdn.com/images/nuketuna/post/be9264f0-ea7c-4bb7-b156-363c04977253/image.png)
 
 // Legacy Model
 

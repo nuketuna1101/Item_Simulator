@@ -27,7 +27,7 @@ const router = express.Router();
 //====================================================================================================================
 //====================================================================================================================
 router.post('/sign-up', async (req, res, next) => {
-    const { username, userId, password, password_confirm } = req.body;
+    const { username, userId, password, passwordConfirm } = req.body;
     try {
         // validation: userId : 중복 불가
         const isuserIdExist = await prisma.users.findFirst({
@@ -37,8 +37,8 @@ router.post('/sign-up', async (req, res, next) => {
         });
         if (isuserIdExist)
             return res.status(409).json({ message: '[Conflict] userId already exists' });
-        // password와 password_confirm 같은지 validation 체크 
-        if (password !== password_confirm)
+        // password와 passwordConfirm 같은지 validation 체크 
+        if (password !== passwordConfirm)
             return res.status(400).json({ message: '[Mismatch] password confirmation failed' });
 
         // bcrypt를 통한 암호화 과정

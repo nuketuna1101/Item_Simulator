@@ -13,7 +13,7 @@ const logDirectory = 'logs';
 
 const logger = winston.createLogger({
     level:                                                                  // log level: info
-        'info',                                
+        'info',
     format:                                                                 // log format: json, timestamp
         winston.format.combine(
             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -21,7 +21,7 @@ const logger = winston.createLogger({
         ),
     transports: [                                                           // log: console, file
         new winston.transports.Console(),
-        new winstonDailyFile({ 
+        new winstonDailyFile({
             filename: path.join(logDirectory, '%DATE%.log'),
             datePattern: 'YYYY-MM-DD',
             maxSize: '20m',
@@ -37,18 +37,16 @@ export default function (req, res, next) {
     // response 완료 시 기록
     res.on('finish', () => {
         const duration = new Date().getTime() - start;
-        logger.info(
-            `Method: ${req.method}, URL: ${req.url}, Status: ${res.statusCode}, Duration: ${duration}ms`,
-        );
-    });
-
-    // response에서 error 시 기록
-    res.on('error', (error) => {
-        logger.error({
-            message: '[Error] error occurred',
-            error: error.message,
-            stack: error.stack,
-        });
+        // response의 응답코드에 따라서 로그 레벨 설정
+        const logLevel = res.statusCode >= 400 ? 'error' : 'info';
+        const logMessage = {
+            message: `Method: ${req.method}, URL: ${req.url}, Status: ${res.statusCode}, Duration: ${duration}ms`,
+        };
+        if (logLevel === 'error') {
+            logMessage.error = res.statusMessage || 'Error occurred';
+            logMessage.stack = new Error().stack;
+        }
+        logger.log(logLevel, logMessage);
     });
 
     next();

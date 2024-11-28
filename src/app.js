@@ -9,9 +9,12 @@ import usersRouter from './routes/users.routers.js';
 import charactersRouter from './routes/characters.routers.js';
 import itemsRouter from './routes/items.routers.js';
 import inventoryRouter from './routes/inventory.routers.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
-const PORT = 3019;
+const PORT = process.env.PORT_NUMBER;
 
 // Middlewares
 app.use(LoggingMiddleware);

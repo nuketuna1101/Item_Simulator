@@ -37,7 +37,20 @@ router.post('/sign-up', async (req, res, next) => {
         });
         if (isuserIdExist)
             return res.status(409).json({ message: '[Conflict] userId already exists' });
-        // password와 passwordConfirm 같은지 validation 체크 
+
+
+        // validation: userId 조건: 영어 소문자 + 숫자의 조합 정규표현식 이용
+        const userIdRegex = /^[a-z0-9]+$/;
+        if (!userIdRegex.test(userId)) 
+            return res.status(400).json({ message: '[Validation Error] only lower alphabets and numbers required on USER ID' });
+        
+
+        // validation: password 조건 : 비밀번호 최소 6자
+        if (password.length < 6) 
+            return res.status(400).json({ message: '[Validation Error] At least 6 chars on PASSWORD' });
+        
+
+        // validation: password와 passwordConfirm 일치 여부
         if (password !== passwordConfirm)
             return res.status(400).json({ message: '[Mismatch] password confirmation failed' });
 
@@ -53,11 +66,11 @@ router.post('/sign-up', async (req, res, next) => {
             },
         });
         // 201 코드 전송
-        return res.status(201).json({ 
+        return res.status(201).json({
             message: '[Created] sign-up completed.',
             username,
             userId
-         });
+        });
 
     } catch (error) {
         next(error);
